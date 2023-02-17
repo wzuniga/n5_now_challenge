@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'oauth2_provider',
+    'papeleta',
 ]
 
 MIDDLEWARE = [
@@ -126,7 +127,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL='users.User'
 LOGIN_URL='/admin/login/'
-
+CSRF_COOKIE_SECURE=False
 
 # Client id:        RCMP5OV93mUtTQjaUnYoSG5cQxuW1qwAFczxyeE7
 # Client secret:    pbkdf2_sha256$390000$jj0p8lfUoU9FHFen7G3c4U$sZuITA8DL1N+pLCevE3yVHj33FPmIHq4V6Sc3UGSjFc=
