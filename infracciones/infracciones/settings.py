@@ -39,18 +39,39 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'oauth2_provider',
+    'corsheaders',
+    'rest_framework',
     'papeleta',
 ]
 
+AUTHENTICATION_BACKENDS = (
+    'oauth2_provider.backends.OAuth2Backend',
+    # Uncomment following if you want to access the admin
+    'django.contrib.auth.backends.ModelBackend'
+)
+
 MIDDLEWARE = [
+    
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    
+    'oauth2_provider.middleware.OAuth2TokenMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'papeleta.middleware.CustomMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    ]
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'infracciones.urls'
 
@@ -128,6 +149,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL='users.User'
 LOGIN_URL='/admin/login/'
 CSRF_COOKIE_SECURE=False
-
-# Client id:        RCMP5OV93mUtTQjaUnYoSG5cQxuW1qwAFczxyeE7
-# Client secret:    pbkdf2_sha256$390000$jj0p8lfUoU9FHFen7G3c4U$sZuITA8DL1N+pLCevE3yVHj33FPmIHq4V6Sc3UGSjFc=
+OAUTH2_PROVIDER_APPLICATION_MODEL = 'oauth2_provider.Application'
