@@ -1,42 +1,82 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseServerError, \
+    HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseNotFound
 from oauth2_provider.views.generic import ProtectedResourceView
 from .models import Person, Vehicle, Officer, Ticket
 from datetime import datetime
-from oauth2_provider.models import AccessToken
-import urllib.parse
 import json
-import re
+from rest_framework.decorators import api_view
+from django.core import serializers
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError, BadRequest
+from rest_framework.parsers import JSONParser
+from .utils import get_oauth_access_token, verify_request_body, \
+    verify_timestamp, verify_content_type
+
 
 class ApiTicketEndpoint(ProtectedResourceView):
+
+    parser_classes = [JSONParser]
+
     @csrf_exempt
-    def post(self, request, *args, **kwargs):
-        app_tk = request.META["QUERY_STRING"]
-        parsed = urllib.parse.parse_qs(app_tk)
-        request_body = json.loads(request.body)
-        acc_tk = AccessToken.objects.get(token=parsed["access_token"][0])
-        vehicle_request = Vehicle.objects.get(placa_patente=request_body['placa_patente'])
-        officer_request = Officer.objects.get(credential_application=acc_tk.application.id)
-        person_request = vehicle_request.persona
-        
-        timestamp_string = request_body['timestamp']
-        new_papeleta = Ticket(
-            timestamp=datetime.fromtimestamp(timestamp_string).strftime('%Y-%m-%d %H:%M:%S'),
-            comentarios=request_body['comentarios'],
-            vehiculo=vehicle_request,
-            oficial=officer_request,
-            persona=person_request,
-        )
-        new_papeleta.save()
-        return HttpResponse('Hello, OAuth2! post')
+    def post(self, request):
+        try:
+            verify_content_type(request)
+            access_token = get_oauth_access_token(request)
+
+            request_body = json.loads(request.body)
+            verify_request_body(request_body, ['placa_patente',
+                                'timestamp', 'comentarios'])
+
+            vehicle_request = \
+                Vehicle.objects.get(patent_plate=request_body['placa_patente'
+                                    ])
+            officer_request = \
+                Officer.objects.get(credential_application=access_token.application.id)
+
+            timestamp_request = \
+                datetime.fromtimestamp(request_body['timestamp'])
+            verify_timestamp(timestamp_request)
+
+            new_ticket = \
+                Ticket(timestamp=timestamp_request.strftime('%Y-%m-%d %H:%M:%S.%f'
+                       ), comments=request_body['comentarios'],
+                       vehicle=vehicle_request,
+                       officer=officer_request,
+                       person=vehicle_request.person)
+            new_ticket.save()
+            return HttpResponse('ticket created successfully!')
+        except BadRequest:
+
+            return HttpResponseNotAllowed('Method not alloed, just CONTENT_TYPE=application/json'
+                    )
+        except Vehicle.DoesNotExist or Officer.DoesNotExist:
+            return HttpResponseNotFound('The information given has errors, check placa_patente'
+                    )
+        except ValidationError or json.decoder.JSONDecodeError:
+            return HttpResponseBadRequest('Content JSON body is invalid!'
+                    )
+        except:
+            return HttpResponseServerError('Content body is invalid!')
 
 
+@api_view(['GET'])
 @csrf_exempt
-def create_papeleta(request):
-    print("enter")
-    if request.method == 'POST':
-        print(request)
-        return HttpResponse('POST!', status=200)
-    else:
-        return HttpResponse('GET!', status=500)
+def get_ticket_by_email(request):
+    try:
+        e_mail_request = request.GET['email']
+        validate_email(e_mail_request)
+        person_request = \
+            Person.objects.filter(e_mail=e_mail_request).first()
+        tickets_requested = Ticket.objects.filter(person=person_request)
+
+        qs_json = serializers.serialize('json', tickets_requested,
+                use_natural_foreign_keys=True,
+                use_natural_primary_keys=True)
+
+        return HttpResponse(qs_json, content_type='application/json')
+    except ValidationError as e:
+        return HttpResponseBadRequest('E-mail is invalid!')

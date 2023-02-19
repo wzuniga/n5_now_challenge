@@ -1,11 +1,24 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 from django.contrib import admin
-from .models import Person, Vehicle, Officer, Ticket
-
-admin.site.register(Person)
-admin.site.register(Vehicle)
-admin.site.register(Officer)
 
 
-@admin.register(Ticket)
-class PostPepeleta(admin.ModelAdmin):
-    list_display = []
+class PostPerson(admin.ModelAdmin):
+
+    list_display = ['name', 'identification_document', 'e_mail']
+
+
+class PostVehicle(admin.ModelAdmin):
+
+    list_display = ['patent_plate', 'brand', 'color', 'person']
+
+
+class PostOfficer(admin.ModelAdmin):
+
+    list_display = ['name', 'identification_number',
+                    'credential_application']
+
+
+class PostTicket(admin.ModelAdmin):
+
+    list_display = ['person', 'vehicle', 'officer', 'timestamp']
