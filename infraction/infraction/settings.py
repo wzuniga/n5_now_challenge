@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-n79i3%1=58asy0z3hd6pa()(q74bw0)z(1_q@(qcn@n!y)wr+d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -135,7 +135,8 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = '/code/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -149,3 +150,5 @@ LOGIN_URL='/admin/login/'
 CSRF_COOKIE_SECURE=False
 
 OAUTH2_PROVIDER_APPLICATION_MODEL = 'oauth2_provider.Application'
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000']

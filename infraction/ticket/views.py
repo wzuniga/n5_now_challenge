@@ -61,8 +61,12 @@ class ApiTicketEndpoint(ProtectedResourceView):
 
             return HttpResponseNotAllowed('Method not alloed, just CONTENT_TYPE=application/json'
                     )
-        except Vehicle.DoesNotExist or Officer.DoesNotExist:
+        except Vehicle.DoesNotExist:
             return HttpResponseNotFound('The information given has errors, check placa_patente'
+                    )
+        except Officer.DoesNotExist:
+            return HttpResponseNotFound('The information given has errors,  \
+                                        credentials not associated with a police officer'
                     )
         except ValidationError or json.decoder.JSONDecodeError:
             return HttpResponseBadRequest('Content JSON body is invalid!'
