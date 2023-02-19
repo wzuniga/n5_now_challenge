@@ -15,6 +15,8 @@ numeric = RegexValidator(r'^[0-9]{8}$',
 
 class Person(models.Model):
 
+    """Class to define attributes on data base and create model for django"""
+
     identification_document = models.CharField(
         max_length=8,
         unique=True,
@@ -33,6 +35,8 @@ class Person(models.Model):
 
 
 class Vehicle(models.Model):
+
+    """Class to define attributes on data base and create model for django"""
 
     patent_plate = models.CharField(
         max_length=6,
@@ -59,6 +63,8 @@ class Vehicle(models.Model):
 
 class Officer(models.Model):
 
+    """Class to define attributes on data base and create model for django"""
+
     name = models.CharField(max_length=100)
 
     identification_number = models.CharField(
@@ -81,6 +87,8 @@ class Officer(models.Model):
 
 
 class Ticket(models.Model):
+
+    """Class to define attributes on data base and create model for django"""
 
     timestamp = models.DateTimeField(default=timezone.now)
 

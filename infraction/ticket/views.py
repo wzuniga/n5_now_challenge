@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http.response import HttpResponse, HttpResponseServerError, \
     HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseNotFound
@@ -19,10 +18,19 @@ from .utils import get_oauth_access_token, verify_request_body, \
 
 class ApiTicketEndpoint(ProtectedResourceView):
 
+    """Class to define API REST """
+
     parser_classes = [JSONParser]
 
     @csrf_exempt
     def post(self, request):
+
+        """POST method to create Ticket record on data base
+
+        Returns:
+            HttpResponse: Ticket was created successfully
+        """
+
         try:
             verify_content_type(request)
             access_token = get_oauth_access_token(request)
@@ -66,6 +74,13 @@ class ApiTicketEndpoint(ProtectedResourceView):
 @api_view(['GET'])
 @csrf_exempt
 def get_ticket_by_email(request):
+
+    """Function to retrive all tickets from a given email
+
+    Returns:
+        HttpResponse: JSON object containing Ticket list
+    """
+
     try:
         e_mail_request = request.GET['email']
         validate_email(e_mail_request)
