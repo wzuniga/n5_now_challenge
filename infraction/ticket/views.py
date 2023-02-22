@@ -58,8 +58,7 @@ class ApiTicketEndpoint(ProtectedResourceView):
             new_ticket.save()
             return HttpResponse('ticket created successfully!')
         except BadRequest:
-
-            return HttpResponseNotAllowed('Method not alloed, just CONTENT_TYPE=application/json'
+            return HttpResponseNotAllowed('Method not allowed, just CONTENT_TYPE=application/json'
                     )
         except Vehicle.DoesNotExist:
             return HttpResponseNotFound('The information given has errors, check placa_patente'
